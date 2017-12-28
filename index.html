@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Hangman Game</title>
+    <link href="https://fonts.googleapis.com/css?family=Dosis" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">    
+</head>
+<body>
+    <div class="header">
+        <h1 id="gameHeader">Hangman Game</h1>
+    </div>
+    
+    <div id="gameContainer">
+        <div class="gamePanel">
+
+            <div class="imageSection">
+            </div>
+
+            <div class="guessSection">
+                <p id="instructionLabel">PRESS ANY KEY TO GET STARTED!</p>
+                <p id="winCount">WINS:</p>
+                
+                <div class="currentWordPanel">
+                    <p>CURRENT WORD</p>
+                    <p id="currentWord"></p>
+                </div>
+        
+                <div class="guessedPanel">
+                    <p>LETTERS ALREADY GUESSED</p>
+                    <p id="guessedLettersPreview"></p>
+                </div>
+
+            </div>
+            
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="assets/script/game.js"></script>
+</body>
+</html>

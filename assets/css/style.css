@@ -1,0 +1,28 @@
+body {
+    background-image: url("../images/dust_scratches.png");
+    background-repeat: repeat;
+    font-family: 'Dosis', sans-serif;
+}
+
+#gameHeader {
+    text-align: center;
+}
+
+#gameContainer {
+    width: 80%;
+    margin: 0 auto;
+    border: 4px;
+    border-style: dashed;
+}
+
+.imageSection {
+    display: inline-block;
+    width: 48%;
+    margin: 0 auto;    
+}
+
+.guessSection {
+    display: inline-block;
+    width: 48%;
+    margin: 0 auto;
+}
