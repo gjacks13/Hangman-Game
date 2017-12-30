@@ -1,23 +1,17 @@
 $(function() {
-    // start game
-    startGame();
-
-
+    // processing key presses
+    processKeyPresses();
 });
 
+const DEFAULT_IMAGE = "assets/images/hangman_start.png";
 const GUESS_COUNT = 4;
 let winCount = 0;
 let guessesRemaining = GUESS_COUNT;
 let currentWord = "";
-let guessedWords = [];
+let guessedLetters = [];
 
-let testword = "phone";
-currentWord = testword;
 var startGame = function() {
-    $('#instructionLabel').fadeOut();
-
-    setCurrentWord(testword);
-    processKeyPresses();
+    getWord(getWordCallback);
 }
 
 var setCurrentWord = function(currentWord) {
@@ -32,17 +26,41 @@ var setCurrentWord = function(currentWord) {
 
 var processKeyPresses = function() {
     $(document).keyup(function(e) {
+        // fade out the instruction label if this is the first key press
+        if ($('#instructionLabel').is(":visible")) {
+            $('#instructionLabel').fadeOut();
+            startGame();
+        } 
+
         let pressedChar = String.fromCharCode(e.which).toLowerCase();
         if (currentWord.indexOf(pressedChar) > -1) {
             let indices = getCharacterIndices(pressedChar, currentWord);
 
             updateWordLabel(pressedChar, indices);
         } else {
-            // the character was not in the word; push it on the guessed list
-            guessedWords.push(pressedChar);
+            // the character was not in the word; update counters and other state
+            if (guessedLetters.indexOf(pressedChar) === -1) {
+                guessedLetters.push(pressedChar);
 
-            // decrement number of guesses remaining
-            guessesRemaining--;
+                // add the letter to the dom guessed list
+                let guessedList = $('#guessedLettersPreview');
+                let guessedListText = guessedList.text();
+                if (guessedList.text()) {
+                    // the string is not empty append letter with comma
+                    guessedListText = guessedList.text() + ", " + pressedChar.toUpperCase();
+                } else {
+                    // the string is empty just append letter
+                    guessedListText = pressedChar.toUpperCase();
+                }
+                // update with new guessed list string
+                guessedList.text(guessedListText);
+
+                // decrement number of guesses remaining; trigger game over if needed
+                if (--guessesRemaining === 0) {
+                    // no more guesses left trigger game over
+                    alert("Game over");
+                }
+            }
         }
       });
 }
@@ -59,7 +77,9 @@ var updateWordLabel = function(letter, indices) {
 var getCharacterIndices = function(letter, word) {
     let indices = [];
     for(var i = 0; i < word.length; i++) {
-        if (word[i] === letter) indices.push(i);
+        if (word[i] === letter) {
+            indices.push(i);
+        }
     }
     return indices;
 }
@@ -75,10 +95,13 @@ var resetGame = function() {
     currentWord = "";
 
     // reset guessed words
-    guessedWords = [];
+    guessedLetters = [];
 
     // reset guess count
     let guessesRemaining = GUESS_COUNT;
+
+    // reset start image
+    
 }
 
 var gameWon = function() {
@@ -89,9 +112,15 @@ var gameLost = function() {
 
 }
 
+var getWordCallback = function(data) {
+    // update the current word
+    currentWord = data["0"].word;
+    setCurrentWord(currentWord);
+    getImage(currentWord, getImageCallback);
+}
 
-var getRandomWord = function() {
-    const wordnikApiKey = "";
+var getWord = function(callback) {
+    const wordnikApiKey = "8fcc16b19ee35829a100303c3f103d9afa26fb7768c265a3b";
     const minLength = 3;
     const maxLength = 15;
 
@@ -100,27 +129,50 @@ var getRandomWord = function() {
     $.ajax({
         type: "GET",
         url: requestUrl,
-        data: myusername,
         cache: false,
         success: function(data){
-            $("#resultarea").text(data);
+            console.log(data);
+            callback(data);
         }
     });
 }
 
-var getImage = function(imageType){
+var setImage = function(imageLocation) {
+    $('#gameImage').attr('src', imageLocation);
+}
+
+var getImageCallback = function(data) {
+    if (data) {
+        let imageLocation;
+        console.log(data);
+        let imageResults = data.items;
+        if (imageResults.length !== 0) {
+            // images found; set source to first image
+            imageLocation = imageResults["0"].link;
+        } else {
+            // no image found; set the source to default
+            imageLocation = DEFAULT_IMAGE;
+        }
+
+        if (imageLocation) {
+            // update the dom if there was no issue getting an image src
+            setImage(imageLocation);
+        }
+    }
+}
+
+var getImage = function(imageType, callback){
     const apiKey = "AIzaSyAvmpB67Ybbh-_3r941lUlIfAZOHF87kbU";
     const searchEngineId = "014119902014769536611:z0adglgefyi";
-
-    const requestUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=flower&searchType=image&fileType=jpg&imgSize=large&alt=json`;
+    console.log("image to search for: " + imageType);
+    const requestUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${imageType}&searchType=image&fileType=jpg&imgSize=large&alt=json`;
 
     $.ajax({
         type: "GET",
         url: requestUrl,
-        data: myusername,
         cache: false,
         success: function(data){
-            $("#resultarea").text(data);
+            callback(data);
         }
     });
 }
