@@ -11,13 +11,13 @@ let guessesRemaining = GUESS_COUNT;
 let currentWord = "";
 let guessedLetters = [];
 
-var startGame = function() {
+var startGame = () => {
     getWord(getWordCallback);
     $('#instructionLabel').hide(FADE_TIME);
     $('#updateContainer').show(FADE_TIME);
 }
 
-var setCurrentWord = function(currentWord) {
+var setCurrentWord = (currentWord) => {
     let currentWordLabel = $('#currentWord');
     
     let placeholder = "";
@@ -32,8 +32,8 @@ var setCurrentWord = function(currentWord) {
     currentWordLabel.text(placeholder);
 }
 
-var processKeyPresses = function() {
-    $(document).keyup(function(e) {
+var processKeyPresses = () => {
+    $(document).keyup((e) => {
         // fade out the instruction label if this is the first key press
         if ($('#instructionLabel').is(":visible")) {
             startGame();
@@ -68,7 +68,7 @@ var processKeyPresses = function() {
                     // decrement number of guesses remaining; trigger game over if needed
                     if (--guessesRemaining === 0) {
                         // no more guesses left trigger game over
-                        alert("Game over");
+                        gameLost();
                     }
                 }
             }
@@ -76,7 +76,7 @@ var processKeyPresses = function() {
       });
 }
 
-var updateWordLabel = function(letter, indices) {
+var updateWordLabel = (letter, indices) => {
     let currentWordLabel = $('#currentWord');
     let currentWordText = currentWordLabel.text();
     indices.forEach(currIndex => {
@@ -85,7 +85,7 @@ var updateWordLabel = function(letter, indices) {
     currentWordLabel.text(currentWordText);
 }
 
-var getCharacterIndices = function(letter, word) {
+var getCharacterIndices = (letter, word) => {
     let indices = [];
     for(var i = 0; i < word.length; i++) {
         if (word[i] === letter) {
@@ -95,7 +95,10 @@ var getCharacterIndices = function(letter, word) {
     return indices;
 }
 
-var resetGame = function() {
+var resetGame = () => {
+    // fade out instructions
+    $('#updateContainer').hide(FADE_TIME);
+
     // fade in instructions
     $('#instructionLabel').show(FADE_TIME);
 
@@ -112,50 +115,75 @@ var resetGame = function() {
     let guessesRemaining = GUESS_COUNT;
 
     // reset start image
-    
+    $('#gameImage').attr('src', DEFAULT_IMAGE);
 }
 
-var gameWon = function() {
-
+var gameWon = () => {
+    const MODAL_HEADER = "Ayyyeee, You've won!";
+    const MODAL_TEXT = ``;
+    openModal(MODAL_HEADER, MODAL_TEXT);
+    closeModal();
 }
 
 var gameLost = function() {
-
+    const MODAL_HEADER = "You've lost!";
+    const MODAL_TEXT = `You've lost the game. The word you were trying to guess was '${currentWord}.' Your total score is ${winCount}`;
+    openModal(MODAL_HEADER, MODAL_TEXT);
+    closeModal();
 }
 
-var getWordCallback = function(data) {
+var openModal = (modalHeader, modalText) => {
+    // set modal content
+    $('.modal-heading').text(modalHeader);
+    $('.modal-text').text(modalText);
+
+    // make modal visible
+    $('.modal').toggleClass('is-visible');
+}
+
+var closeModal = () => {
+    $(document).click(() => {
+        $('.modal').toggleClass('is-visible');
+        $(document).off('click');
+    });
+
+    $('#icon-close').click(() => {
+        $('.modal').toggleClass('is-visible');
+        $('#icon-close').off('click');
+    });
+}
+
+var getWordCallback = (data) => {
     // update the current word
     currentWord = data["0"].word;
     setCurrentWord(currentWord);
     getImage(currentWord, getImageCallback);
 }
 
-var getWord = function(callback) {
-    const wordnikApiKey = "8fcc16b19ee35829a100303c3f103d9afa26fb7768c265a3b";
-    const minLength = 3;
-    const maxLength = 15;
+var getWord = (callback) => {
+    const API_KEY = "8fcc16b19ee35829a100303c3f103d9afa26fb7768c265a3b";
+    const MIN_LENGTH = 3;
+    const MAX_LENGTH = 15;
 
-    const requestUrl = `http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=true&minCorpusCount=0&minLength=${minLength}&maxLength=${maxLength}&limit=1&api_key=${wordnikApiKey}`;
+    const URL = `http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=true&minCorpusCount=0&minLength=${MIN_LENGTH}&maxLength=${MAX_LENGTH}&limit=1&api_key=${API_KEY}`;
 
     $.ajax({
         type: "GET",
-        url: requestUrl,
+        url: URL,
         cache: false,
         success: function(data){
-            console.log(data);
             callback(data);
         }
     });
 }
 
-var setImage = function(imageLocation) {
+var setImage = (imageLocation) => {
     $('#gameImage').attr('src', imageLocation);
 }
 
-var getImageCallback = function(data) {
+var getImageCallback = (data) => {
     if (data) {
         let imageLocation;
-        console.log(data);
         let imageResults = data.items;
         if (imageResults.length !== 0) {
             // images found; set source to first image
@@ -172,15 +200,14 @@ var getImageCallback = function(data) {
     }
 }
 
-var getImage = function(imageType, callback){
-    const apiKey = "AIzaSyAvmpB67Ybbh-_3r941lUlIfAZOHF87kbU";
-    const searchEngineId = "014119902014769536611:z0adglgefyi";
-    console.log("image to search for: " + imageType);
-    const requestUrl = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${searchEngineId}&q=${imageType}&searchType=image&fileType=jpg&imgSize=large&alt=json`;
+var getImage = (imageType, callback) => {
+    const API_KEY = "AIzaSyAvmpB67Ybbh-_3r941lUlIfAZOHF87kbU";
+    const SEARCH_ID = "014119902014769536611:z0adglgefyi";
+    const URL = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ID}&q=${imageType}&searchType=image&fileType=jpg&imgSize=large&alt=json`;
 
     $.ajax({
         type: "GET",
-        url: requestUrl,
+        url: URL,
         cache: false,
         success: function(data){
             callback(data);
