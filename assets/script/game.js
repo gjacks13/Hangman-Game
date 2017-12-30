@@ -4,7 +4,7 @@ $(function() {
 });
 
 const DEFAULT_IMAGE = "assets/images/hangman_start.png";
-const GUESS_COUNT = 4;
+const GUESS_COUNT = 6;
 const FADE_TIME = 500;
 let winCount = 0;
 let guessesRemaining = GUESS_COUNT;
