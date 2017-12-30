@@ -5,6 +5,7 @@ $(function() {
 
 const DEFAULT_IMAGE = "assets/images/hangman_start.png";
 const GUESS_COUNT = 4;
+const FADE_TIME = 500;
 let winCount = 0;
 let guessesRemaining = GUESS_COUNT;
 let currentWord = "";
@@ -12,6 +13,8 @@ let guessedLetters = [];
 
 var startGame = function() {
     getWord(getWordCallback);
+    $('#instructionLabel').hide(FADE_TIME);
+    $('#updateContainer').show(FADE_TIME);
 }
 
 var setCurrentWord = function(currentWord) {
@@ -19,7 +22,12 @@ var setCurrentWord = function(currentWord) {
     
     let placeholder = "";
     for (var i = 0; i < currentWord.length; i++) {
-        placeholder += "_";
+        if (currentWord.charAt(i) !== '-') {
+            placeholder += "_";
+        } else {
+            // handle hyphenated words
+            placeholder += "-";
+        }
     }
     currentWordLabel.text(placeholder);
 }
@@ -28,37 +36,40 @@ var processKeyPresses = function() {
     $(document).keyup(function(e) {
         // fade out the instruction label if this is the first key press
         if ($('#instructionLabel').is(":visible")) {
-            $('#instructionLabel').fadeOut();
             startGame();
+            return; // return; so the first key press only starts the game
         } 
 
+        // only process if the key pressed is an alphabet character
         let pressedChar = String.fromCharCode(e.which).toLowerCase();
-        if (currentWord.indexOf(pressedChar) > -1) {
-            let indices = getCharacterIndices(pressedChar, currentWord);
-
-            updateWordLabel(pressedChar, indices);
-        } else {
-            // the character was not in the word; update counters and other state
-            if (guessedLetters.indexOf(pressedChar) === -1) {
-                guessedLetters.push(pressedChar);
-
-                // add the letter to the dom guessed list
-                let guessedList = $('#guessedLettersPreview');
-                let guessedListText = guessedList.text();
-                if (guessedList.text()) {
-                    // the string is not empty append letter with comma
-                    guessedListText = guessedList.text() + ", " + pressedChar.toUpperCase();
-                } else {
-                    // the string is empty just append letter
-                    guessedListText = pressedChar.toUpperCase();
-                }
-                // update with new guessed list string
-                guessedList.text(guessedListText);
-
-                // decrement number of guesses remaining; trigger game over if needed
-                if (--guessesRemaining === 0) {
-                    // no more guesses left trigger game over
-                    alert("Game over");
+        if (/[a-zA-Z]/.test(pressedChar)) {
+            if (currentWord.indexOf(pressedChar) > -1) {
+                let indices = getCharacterIndices(pressedChar, currentWord);
+    
+                updateWordLabel(pressedChar, indices);
+            } else {
+                // the character was not in the word; update counters and other state
+                if (guessedLetters.indexOf(pressedChar) === -1) {
+                    guessedLetters.push(pressedChar);
+    
+                    // add the letter to the dom guessed list
+                    let guessedList = $('#guessedLettersPreview');
+                    let guessedListText = guessedList.text();
+                    if (guessedList.text()) {
+                        // the string is not empty append letter with comma
+                        guessedListText = guessedList.text() + ", " + pressedChar.toUpperCase();
+                    } else {
+                        // the string is empty just append letter
+                        guessedListText = pressedChar.toUpperCase();
+                    }
+                    // update with new guessed list string
+                    guessedList.text(guessedListText);
+    
+                    // decrement number of guesses remaining; trigger game over if needed
+                    if (--guessesRemaining === 0) {
+                        // no more guesses left trigger game over
+                        alert("Game over");
+                    }
                 }
             }
         }
@@ -86,7 +97,7 @@ var getCharacterIndices = function(letter, word) {
 
 var resetGame = function() {
     // fade in instructions
-    $('#instructionLabel').fadeIn();
+    $('#instructionLabel').show(FADE_TIME);
 
     // reset current word label
     $('#currentWord').text("");

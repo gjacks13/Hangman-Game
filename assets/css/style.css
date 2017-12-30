@@ -16,6 +16,10 @@ body {
     border-style: dashed;
 }
 
+#updateContainer {
+    display: none;
+}
+
 #currentWord {
     letter-spacing: 15px;
     font-size: 3em;
