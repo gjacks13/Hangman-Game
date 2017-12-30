@@ -12,6 +12,19 @@ let currentWord = "";
 let guessedLetters = [];
 
 var startGame = () => {
+    // initialize guess counter
+    let guessCounter = $('.guess-count');
+    if (!guessCounter.text()) {
+        guessCounter.text(GUESS_COUNT)
+    }
+
+    // initialize win counter
+    let winCounter = $('.winCount');
+    if (!winCounter.text()) {
+        winCounter.text(winCount)
+    }
+
+    // get current word and handle transitions
     getWord(getWordCallback);
     $('#instructionLabel').hide(FADE_TIME);
     $('#updateContainer').show(FADE_TIME);
@@ -53,7 +66,8 @@ var processKeyPresses = () => {
                     guessedLetters.push(pressedChar);
     
                     // add the letter to the dom guessed list
-                    let guessedList = $('#guessedLettersPreview');
+                    let guessedList = $('.guessedLettersPreview');
+                    let guessCounter = $('.guess-count');
                     let guessedListText = guessedList.text();
                     if (guessedList.text()) {
                         // the string is not empty append letter with comma
@@ -65,8 +79,11 @@ var processKeyPresses = () => {
                     // update with new guessed list string
                     guessedList.text(guessedListText);
     
+                    // update the guess counter
+                    guessCounter.text(--guessesRemaining);
+
                     // decrement number of guesses remaining; trigger game over if needed
-                    if (--guessesRemaining === 0) {
+                    if (guessesRemaining === 0) {
                         // no more guesses left trigger game over
                         gameLost();
                     }

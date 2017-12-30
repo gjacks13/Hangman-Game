@@ -22,12 +22,15 @@ body {
     display: none;
 }
 
-.sectionLabel, #instructionLabel {
-    font-size: 1.5em;
-    font-weight: bold;
+.sectionLabel, #instructionLabel  {
+    font-size: 2em;
 }
 
-.sectionLabel {
+.sublabel {
+    font-size: 1.5em;
+}
+
+.sectionLabel, .guessedLettersPreview {
     line-height: 60px;
 }
 
