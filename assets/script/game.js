@@ -1,5 +1,5 @@
 $(function() {
-    // processing key presses
+    // stat processing key presses
     processKeyPresses();
 });
 
@@ -7,9 +7,11 @@ const DEFAULT_IMAGE = "assets/images/hangman_start.png";
 const GUESS_COUNT = 6;
 const FADE_TIME = 500;
 let winCount = 0;
+let remainingLetters = 0;
 let guessesRemaining = GUESS_COUNT;
 let currentWord = "";
 let guessedLetters = [];
+let correctLetters = [];
 
 var startGame = () => {
     // initialize guess counter
@@ -23,6 +25,28 @@ var startGame = () => {
     if (!winCounter.text()) {
         winCounter.text(winCount)
     }
+
+    // get current word and handle transitions
+    getWord(getWordCallback);
+    $('#instructionLabel').hide(FADE_TIME);
+    $('#updateContainer').show(FADE_TIME);
+}
+
+var startNewRound = () => {
+    // initialize guess counter
+    let guessCounter = $('.guess-count');
+    guessCounter.text(GUESS_COUNT)
+
+    // increment win counter
+    let winCounter = $('.winCount');
+    winCounter.text(++winCount)
+
+    // reset correctly guessed letter 
+    correctLetters = [];
+
+    // reset guessed letters
+    guessedLetters = [];
+    $('.guessedLettersPreview').text("");
 
     // get current word and handle transitions
     getWord(getWordCallback);
@@ -53,13 +77,24 @@ var processKeyPresses = () => {
             return; // return; so the first key press only starts the game
         } 
 
-        // only process if the key pressed is an alphabet character
+        // only process if the key pressed is an alphabet character, and there are guesses remaining
         let pressedChar = String.fromCharCode(e.which).toLowerCase();
-        if (/[a-zA-Z]/.test(pressedChar)) {
-            if (currentWord.indexOf(pressedChar) > -1) {
+        if (/[a-zA-Z]/.test(pressedChar) && guessesRemaining !== 0) {
+            if (currentWord.indexOf(pressedChar) > -1 && correctLetters.indexOf(pressedChar) === -1) {
+                // the character is in the current word, and it hasn't been correctly guessed already
+                // update current word label
                 let indices = getCharacterIndices(pressedChar, currentWord);
-    
                 updateWordLabel(pressedChar, indices);
+
+                // update remaining letters counter
+                correctLetters.push(pressedChar);
+                remainingLetters -= indices.length;
+
+                // if no more letter open won game modal
+                if (remainingLetters === 0) {
+                    gameWon();
+                }
+
             } else {
                 // the character was not in the word; update counters and other state
                 if (guessedLetters.indexOf(pressedChar) === -1) {
@@ -125,11 +160,22 @@ var resetGame = () => {
     // reset current word
     currentWord = "";
 
-    // reset guessed words
+    // reset guessed letters
     guessedLetters = [];
+    $('.guessedLettersPreview').text("");
+
+    // reset correctly guessed letter 
+    correctLetters = [];
 
     // reset guess count
-    let guessesRemaining = GUESS_COUNT;
+    guessesRemaining = GUESS_COUNT;
+
+    // reset letters remaining count
+    remainingLetters = 0;
+
+    // reset wincount
+    winCount = 0;
+    $('.winCount').text('0');
 
     // reset start image
     $('#gameImage').attr('src', DEFAULT_IMAGE);
@@ -137,16 +183,18 @@ var resetGame = () => {
 
 var gameWon = () => {
     const MODAL_HEADER = "Ayyyeee, You've won!";
-    const MODAL_TEXT = ``;
+    const MODAL_TEXT = `You've won the round! Your current score is ${winCount + 1}`;
+    const CONTINUE_GAME = true;
     openModal(MODAL_HEADER, MODAL_TEXT);
-    closeModal();
+    closeModal(CONTINUE_GAME);
 }
 
 var gameLost = function() {
     const MODAL_HEADER = "You've lost!";
     const MODAL_TEXT = `You've lost the game. The word you were trying to guess was '${currentWord}.' Your total score is ${winCount}`;
+    const CONTINUE_GAME = false;
     openModal(MODAL_HEADER, MODAL_TEXT);
-    closeModal();
+    closeModal(CONTINUE_GAME);
 }
 
 var openModal = (modalHeader, modalText) => {
@@ -158,30 +206,44 @@ var openModal = (modalHeader, modalText) => {
     $('.modal').toggleClass('is-visible');
 }
 
-var closeModal = () => {
+var closeModal = (continueGame) => {
     $(document).click(() => {
         $('.modal').toggleClass('is-visible');
         $(document).off('click');
+        handleGameFlow(continueGame);
     });
 
     $('#icon-close').click(() => {
         $('.modal').toggleClass('is-visible');
         $('#icon-close').off('click');
+        handleGameFlow(continueGame);
     });
+}
+
+var handleGameFlow = (continueGame) => {
+    if (continueGame) {
+        // start new round
+        startNewRound();
+    } else {
+        // reset the game
+        resetGame();
+    }
 }
 
 var getWordCallback = (data) => {
     // update the current word
-    currentWord = data["0"].word;
+    currentWord = data["0"].word.toLowerCase();
     setCurrentWord(currentWord);
     getImage(currentWord, getImageCallback);
+
+    // set letters left to guess counter
+    remainingLetters = currentWord.length;
 }
 
 var getWord = (callback) => {
     const API_KEY = "8fcc16b19ee35829a100303c3f103d9afa26fb7768c265a3b";
     const MIN_LENGTH = 3;
-    const MAX_LENGTH = 15;
-
+    const MAX_LENGTH = 8;
     const URL = `http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=true&minCorpusCount=0&minLength=${MIN_LENGTH}&maxLength=${MAX_LENGTH}&limit=1&api_key=${API_KEY}`;
 
     $.ajax({
