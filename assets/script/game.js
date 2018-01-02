@@ -268,6 +268,9 @@ let getWord = (callback) => {
         cache: false,
         success: function(data){
             callback(data);
+        },
+        error: function(data) {
+            callback(data);
         }
     });
 }
