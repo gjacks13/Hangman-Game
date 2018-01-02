@@ -250,7 +250,7 @@ let getWord = (callback) => {
     const API_KEY = "8fcc16b19ee35829a100303c3f103d9afa26fb7768c265a3b";
     const MIN_LENGTH = 3;
     const MAX_LENGTH = 8;
-    const URL = `http://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=true&minCorpusCount=0&minLength=${MIN_LENGTH}&maxLength=${MAX_LENGTH}&limit=1&api_key=${API_KEY}`;
+    const URL = `https://api.wordnik.com:80/v4/words.json/randomWords?hasDictionaryDef=true&minCorpusCount=0&minLength=${MIN_LENGTH}&maxLength=${MAX_LENGTH}&limit=1&api_key=${API_KEY}`;
 
     $.ajax({
         type: "GET",
