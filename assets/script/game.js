@@ -13,49 +13,51 @@ let currentWord = "";
 let guessedLetters = [];
 let correctLetters = [];
 
-var startGame = () => {
+let startGame = () => {
     // initialize guess counter
     let guessCounter = $('.guess-count');
     if (!guessCounter.text()) {
-        guessCounter.text(GUESS_COUNT)
+        guessCounter.text(GUESS_COUNT);
     }
 
     // initialize win counter
-    let winCounter = $('.winCount');
+    let winCounter = $('.win-count');
     if (!winCounter.text()) {
         winCounter.text(winCount)
     }
 
     // get current word and handle transitions
     getWord(getWordCallback);
-    $('#instructionLabel').hide(FADE_TIME);
-    $('#updateContainer').show(FADE_TIME);
+    $('.instruction-label').hide(FADE_TIME);
+    $('.update-container').show(FADE_TIME);
 }
 
-var startNewRound = () => {
+let startNewRound = () => {
+    resetInternalState();
+
     // initialize guess counter
     let guessCounter = $('.guess-count');
-    guessCounter.text(GUESS_COUNT)
+    guessCounter.text(GUESS_COUNT);
 
     // increment win counter
-    let winCounter = $('.winCount');
-    winCounter.text(++winCount)
+    let winCounter = $('.win-count');
+    winCounter.text(++winCount);
 
     // reset correctly guessed letter 
     correctLetters = [];
 
     // reset guessed letters
     guessedLetters = [];
-    $('.guessedLettersPreview').text("");
+    $('.guessed-letters-preview').text("");
 
     // get current word and handle transitions
     getWord(getWordCallback);
-    $('#instructionLabel').hide(FADE_TIME);
-    $('#updateContainer').show(FADE_TIME);
+    $('.instruction-label').hide(FADE_TIME);
+    $('.update-container').show(FADE_TIME);
 }
 
-var setCurrentWord = (currentWord) => {
-    let currentWordLabel = $('#currentWord');
+let setCurrentWord = (currentWord) => {
+    let currentWordLabel = $('.current-word');
     
     let placeholder = "";
     for (var i = 0; i < currentWord.length; i++) {
@@ -69,10 +71,10 @@ var setCurrentWord = (currentWord) => {
     currentWordLabel.text(placeholder);
 }
 
-var processKeyPresses = () => {
+let processKeyPresses = () => {
     $(document).keyup((e) => {
         // fade out the instruction label if this is the first key press
-        if ($('#instructionLabel').is(":visible")) {
+        if ($('.instruction-label').is(":visible")) {
             startGame();
             return; // return; so the first key press only starts the game
         } 
@@ -101,7 +103,7 @@ var processKeyPresses = () => {
                     guessedLetters.push(pressedChar);
     
                     // add the letter to the dom guessed list
-                    let guessedList = $('.guessedLettersPreview');
+                    let guessedList = $('.guessed-letters-preview');
                     let guessCounter = $('.guess-count');
                     let guessedListText = guessedList.text();
                     if (guessedList.text()) {
@@ -128,8 +130,8 @@ var processKeyPresses = () => {
       });
 }
 
-var updateWordLabel = (letter, indices) => {
-    let currentWordLabel = $('#currentWord');
+let updateWordLabel = (letter, indices) => {
+    let currentWordLabel = $('.current-word');
     let currentWordText = currentWordLabel.text();
     indices.forEach(currIndex => {
         currentWordText = currentWordText.substr(0, currIndex) + letter + currentWordText.substr(currIndex + 1);
@@ -137,7 +139,7 @@ var updateWordLabel = (letter, indices) => {
     currentWordLabel.text(currentWordText);
 }
 
-var getCharacterIndices = (letter, word) => {
+let getCharacterIndices = (letter, word) => {
     let indices = [];
     for(var i = 0; i < word.length; i++) {
         if (word[i] === letter) {
@@ -147,41 +149,41 @@ var getCharacterIndices = (letter, word) => {
     return indices;
 }
 
-var resetGame = () => {
+let resetGame = () => {
+    resetInternalState();
+    
     // fade out instructions
-    $('#updateContainer').hide(FADE_TIME);
+    $('.update-container').hide(FADE_TIME);
 
     // fade in instructions
-    $('#instructionLabel').show(FADE_TIME);
+    $('.instruction-label').show(FADE_TIME);
 
     // reset current word label
-    $('#currentWord').text("");
-
-    // reset current word
-    currentWord = "";
+    $('.current-word').text("");
 
     // reset guessed letters
-    guessedLetters = [];
-    $('.guessedLettersPreview').text("");
-
-    // reset correctly guessed letter 
-    correctLetters = [];
+    $('.guessed-letters-preview').text("");
 
     // reset guess count
-    guessesRemaining = GUESS_COUNT;
-
-    // reset letters remaining count
-    remainingLetters = 0;
+    $('.guess-count').text(guessesRemaining);
 
     // reset wincount
     winCount = 0;
-    $('.winCount').text('0');
+    $('.win-count').text('0');
 
     // reset start image
-    $('#gameImage').attr('src', DEFAULT_IMAGE);
+    $('.game-image').attr('src', DEFAULT_IMAGE);
 }
 
-var gameWon = () => {
+let resetInternalState = () => {
+    guessesRemaining = GUESS_COUNT;
+    remainingLetters = 0;
+    currentWord = "";
+    guessedLetters = [];
+    correctLetters = [];
+}
+
+let gameWon = () => {
     const MODAL_HEADER = "Ayyyeee, You've won!";
     const MODAL_TEXT = `You've won the round! Your current score is ${winCount + 1}`;
     const CONTINUE_GAME = true;
@@ -189,7 +191,7 @@ var gameWon = () => {
     closeModal(CONTINUE_GAME);
 }
 
-var gameLost = function() {
+let gameLost = function() {
     const MODAL_HEADER = "You've lost!";
     const MODAL_TEXT = `You've lost the game. The word you were trying to guess was '${currentWord}.' Your total score is ${winCount}`;
     const CONTINUE_GAME = false;
@@ -197,30 +199,30 @@ var gameLost = function() {
     closeModal(CONTINUE_GAME);
 }
 
-var openModal = (modalHeader, modalText) => {
+let openModal = (modalHeader, modalText) => {
     // set modal content
     $('.modal-heading').text(modalHeader);
     $('.modal-text').text(modalText);
 
     // make modal visible
-    $('.modal').toggleClass('is-visible');
+    $('.modal').addClass('is-visible');
 }
 
-var closeModal = (continueGame) => {
+let closeModal = (continueGame) => {
     $(document).click(() => {
-        $('.modal').toggleClass('is-visible');
+        $('.modal').removeClass('is-visible');
         $(document).off('click');
         handleGameFlow(continueGame);
     });
 
-    $('#icon-close').click(() => {
-        $('.modal').toggleClass('is-visible');
-        $('#icon-close').off('click');
+    $('.icon-close').click(() => {
+        $('.modal').removeClass('is-visible');
+        $('.icon-close').off('click');
         handleGameFlow(continueGame);
     });
 }
 
-var handleGameFlow = (continueGame) => {
+let handleGameFlow = (continueGame) => {
     if (continueGame) {
         // start new round
         startNewRound();
@@ -230,7 +232,11 @@ var handleGameFlow = (continueGame) => {
     }
 }
 
-var getWordCallback = (data) => {
+let setImage = (imageLocation) => {
+    $('.game-image').attr('src', imageLocation);
+}
+
+let getWordCallback = (data) => {
     // update the current word
     currentWord = data["0"].word.toLowerCase();
     setCurrentWord(currentWord);
@@ -240,7 +246,7 @@ var getWordCallback = (data) => {
     remainingLetters = currentWord.length;
 }
 
-var getWord = (callback) => {
+let getWord = (callback) => {
     const API_KEY = "8fcc16b19ee35829a100303c3f103d9afa26fb7768c265a3b";
     const MIN_LENGTH = 3;
     const MAX_LENGTH = 8;
@@ -256,11 +262,7 @@ var getWord = (callback) => {
     });
 }
 
-var setImage = (imageLocation) => {
-    $('#gameImage').attr('src', imageLocation);
-}
-
-var getImageCallback = (data) => {
+let getImageCallback = (data) => {
     if (data) {
         let imageLocation;
         let imageResults = data.items;
@@ -279,7 +281,7 @@ var getImageCallback = (data) => {
     }
 }
 
-var getImage = (imageType, callback) => {
+let getImage = (imageType, callback) => {
     const API_KEY = "AIzaSyAvmpB67Ybbh-_3r941lUlIfAZOHF87kbU";
     const SEARCH_ID = "014119902014769536611:z0adglgefyi";
     const URL = `https://www.googleapis.com/customsearch/v1?key=${API_KEY}&cx=${SEARCH_ID}&q=${imageType}&searchType=image&fileType=jpg&imgSize=large&alt=json`;

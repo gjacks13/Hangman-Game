@@ -4,25 +4,26 @@ body {
     font-family: 'Dosis', sans-serif;
 }
 
-#gameHeader {
+.game-header {
     text-align: center;
     font-size: 4em;
     margin-bottom: 20px;
 }
 
-#gameContainer {
+.game-container {
     min-height: 400px;
     width: 80%;
     margin: 5px auto;
     border: 4px;
     border-style: dashed;
+    box-sizing: border-box;
 }
 
-#updateContainer {
+.update-container {
     display: none;
 }
 
-.sectionLabel, #instructionLabel  {
+.section-label, .instruction-label  {
     font-size: 2em;
 }
 
@@ -30,31 +31,31 @@ body {
     font-size: 1.5em;
 }
 
-.sectionLabel, .guessedLettersPreview {
+.section-label, .guessed-letters-preview, .instruction-label {
     line-height: 60px;
 }
 
-#winCount {
+.win-count {
     font-size: 1.5em;
 }
 
-#currentWord {
+.current-word {
     letter-spacing: 15px;
     font-size: 3em;
 }
 
-.imageSection {
+.image-section {
     display: inline-block;
     width: 48%;
     margin: 0 auto;    
 }
 
-#gameImage {
+.game-image {
     width: 80%;
     height: 80%;
 }
 
-.guessSection {
+.guess-section {
     display: inline-block;
     width: 48%;
     margin: 0 auto;
@@ -155,4 +156,14 @@ body {
 
 .modal-content > *:last-child {
   margin-bottom: 0;
+}
+
+@media screen and (max-width: 680px) {
+    .guess-section, .image-section {
+        display: block;
+    }
+
+    .modal-text {
+        padding: 4em;
+    }
 }
