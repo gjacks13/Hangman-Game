@@ -13,6 +13,9 @@ let currentWord = "";
 let guessedLetters = [];
 let correctLetters = [];
 
+// Not required for if the page isn't hoste on github
+let wordList = ['cat', 'dog', 'flower', 'power', 'cower', 'shower', 'chowder', 'powder', 'slide', 'marinade']
+
 let startGame = () => {
     // initialize guess counter
     let guessCounter = $('.guess-count');
@@ -238,7 +241,14 @@ let setImage = (imageLocation) => {
 
 let getWordCallback = (data) => {
     // update the current word
-    currentWord = data["0"].word.toLowerCase();
+    //currentWord = data["0"].word.toLowerCase();
+    currentWord = null;
+    if (!currentWord) {
+        // assign a word from the static list if none was retrieved from the service
+        let index = Math.floor(Math.random() * wordList.length);
+        currentWord = wordList[index];
+    }
+    
     setCurrentWord(currentWord);
     getImage(currentWord, getImageCallback);
 
